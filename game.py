@@ -29,7 +29,7 @@ def spawn_hazard():
             break
 
 def draw_grid():
-    """Draw a 5x5 grid with the player and collectible."""
+    """Draw a 5x5 grid with the player, collectible, and hazard."""
     size = 5
     print(f"\n  Score: {score}/{WIN_SCORE}")
     print("+" + "---+" * size)
@@ -40,9 +40,9 @@ def draw_grid():
             if row == player_pos[0] and col == player_pos[1]:
                 line += " P |"
             elif row == item_pos[0] and col == item_pos[1]:
-                line += " * |"  # Collectible
+                line += " * |"
             elif row == hazard_pos[0] and col == hazard_pos[1]:
-                line += " X |"  # Hazard
+                line += " X |"
             else:
                 line += "   |"
         print(line)
@@ -68,40 +68,57 @@ def move_player(direction):
         player_pos[0] = new_row
         player_pos[1] = new_col
 
+def reset_game():
+    """Reset all game state for a new round."""
+    global score
+    player_pos[0] = 0
+    player_pos[1] = 0
+    score = 0
+    spawn_item()
+    spawn_hazard()
+
 def main():
-    """Main game loop."""
+    """Main game loop with play again support."""
     global score
 
-    spawn_item()  # Place the first collectible
-    spawn_hazard()  # Place the first hazard
-
     while True:
-        os.system("clear")  # Clear the terminal
-        draw_grid()
+        reset_game()
 
-        if score >= WIN_SCORE:
-            print("You win! Thanks for playing!")
-            break
+        # Active play loop
+        while True:
+            os.system("clear")
+            draw_grid()
 
-        print("WASD to move | q to quit")
-        command = input("> ")
-
-        if command == "q":
-            print("Thanks for playing!")
-            break
-
-        if command in "wasd":
-            move_player(command)
-
-            # Check if player landed on the collectible
-            if player_pos == item_pos:
-                score += 1
-                spawn_item()
-
-            # Check if player landed on the hazard
-            if player_pos == hazard_pos:
-                print("Game Over!")
+            if score >= WIN_SCORE:
+                print("You win! Thanks for playing!")
                 break
+
+            print("WASD to move | q to quit")
+            command = input("> ")
+
+            if command == "q":
+                print("Thanks for playing!")
+                return
+
+            if command in "wasd":
+                move_player(command)
+
+                if player_pos == item_pos:
+                    score += 1
+                    spawn_item()
+
+                if player_pos == hazard_pos:
+                    print("Game Over!")
+                    break
+
+        # Play again prompt
+        while True:
+            choice = input("\nPlay again? (y/n) ").lower()
+            if choice == "y":
+                break
+            elif choice == "n":
+                print("Goodbye!")
+                return
 
 if __name__ == "__main__":
     main()

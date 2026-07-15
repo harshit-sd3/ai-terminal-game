@@ -2,20 +2,14 @@ import io
 import sys
 
 import pytest
-from game import player_pos, item_pos, hazard_pos, score, draw_grid, move_player, spawn_item, spawn_hazard, WIN_SCORE
+from game import player_pos, item_pos, hazard_pos, score, draw_grid, move_player, spawn_item, spawn_hazard, reset_game, WIN_SCORE
 import game
 
 
 @pytest.fixture(autouse=True)
-def reset_game():
+def reset_game_state():
     """Reset all game state before every test."""
-    player_pos[0] = 0
-    player_pos[1] = 0
-    item_pos[0] = 2
-    item_pos[1] = 2
-    hazard_pos[0] = 3
-    hazard_pos[1] = 3
-    game.score = 0
+    reset_game()
 
 
 def capture_grid():
@@ -231,3 +225,57 @@ def test_no_game_over_away_from_hazard():
     hazard_pos[1] = 4  # hazard far away
     move_player("d")
     assert player_pos != hazard_pos
+
+
+# --- Reset tests ---
+
+
+def test_reset_moves_player_to_origin():
+    """Reset should move the player back to (0, 0)."""
+    player_pos[0] = 3
+    player_pos[1] = 4
+    reset_game()
+    assert player_pos == [0, 0]
+
+
+def test_reset_sets_score_to_zero():
+    """Reset should set the score back to 0."""
+    game.score = 7
+    reset_game()
+    assert game.score == 0
+
+
+def test_reset_spawns_item_on_grid():
+    """Reset should place the collectible within the grid."""
+    reset_game()
+    assert 0 <= item_pos[0] < 5
+    assert 0 <= item_pos[1] < 5
+
+
+def test_reset_spawns_hazard_on_grid():
+    """Reset should place the hazard within the grid."""
+    reset_game()
+    assert 0 <= hazard_pos[0] < 5
+    assert 0 <= hazard_pos[1] < 5
+
+
+def test_reset_hazard_not_on_player():
+    """Reset should not place the hazard on the player."""
+    reset_game()
+    assert hazard_pos != player_pos
+
+
+def test_reset_hazard_not_on_item():
+    """Reset should not place the hazard on the collectible."""
+    reset_game()
+    assert hazard_pos != item_pos
+
+
+def test_reset_after_scoring():
+    """Reset after scoring should return everything to starting state."""
+    game.score = 5
+    player_pos[0] = 2
+    player_pos[1] = 3
+    reset_game()
+    assert player_pos == [0, 0]
+    assert game.score == 0
