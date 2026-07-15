@@ -4,6 +4,7 @@ import random
 # Game state
 player_pos = [0, 0]  # [row, col] starting at top-left
 item_pos = [0, 0]    # [row, col] collectible position
+hazard_pos = [0, 0]  # [row, col] hazard position
 score = 0
 WIN_SCORE = 10
 
@@ -15,6 +16,16 @@ def spawn_item():
         if [row, col] != player_pos:
             item_pos[0] = row
             item_pos[1] = col
+            break
+
+def spawn_hazard():
+    """Place the hazard at a random position that isn't the player or item."""
+    while True:
+        row = random.randint(0, 4)
+        col = random.randint(0, 4)
+        if [row, col] != player_pos and [row, col] != item_pos:
+            hazard_pos[0] = row
+            hazard_pos[1] = col
             break
 
 def draw_grid():
@@ -30,6 +41,8 @@ def draw_grid():
                 line += " P |"
             elif row == item_pos[0] and col == item_pos[1]:
                 line += " * |"  # Collectible
+            elif row == hazard_pos[0] and col == hazard_pos[1]:
+                line += " X |"  # Hazard
             else:
                 line += "   |"
         print(line)
@@ -60,6 +73,7 @@ def main():
     global score
 
     spawn_item()  # Place the first collectible
+    spawn_hazard()  # Place the first hazard
 
     while True:
         os.system("clear")  # Clear the terminal
@@ -83,6 +97,11 @@ def main():
             if player_pos == item_pos:
                 score += 1
                 spawn_item()
+
+            # Check if player landed on the hazard
+            if player_pos == hazard_pos:
+                print("Game Over!")
+                break
 
 if __name__ == "__main__":
     main()

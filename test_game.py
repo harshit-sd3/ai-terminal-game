@@ -2,7 +2,7 @@ import io
 import sys
 
 import pytest
-from game import player_pos, item_pos, score, draw_grid, move_player, spawn_item, WIN_SCORE
+from game import player_pos, item_pos, hazard_pos, score, draw_grid, move_player, spawn_item, spawn_hazard, WIN_SCORE
 import game
 
 
@@ -13,6 +13,8 @@ def reset_game():
     player_pos[1] = 0
     item_pos[0] = 2
     item_pos[1] = 2
+    hazard_pos[0] = 3
+    hazard_pos[1] = 3
     game.score = 0
 
 
@@ -174,3 +176,58 @@ def test_no_win_below_score_10():
     """Game should not end when score is below WIN_SCORE."""
     game.score = 9
     assert game.score < WIN_SCORE
+
+
+# --- Hazard tests ---
+
+
+def test_grid_shows_hazard():
+    """Grid should display the hazard marker 'X'."""
+    output = capture_grid()
+    assert "X" in output
+
+
+def test_hazard_spawn_not_on_player():
+    """Hazard should never spawn on the player's position."""
+    player_pos[0] = 2
+    player_pos[1] = 2
+    item_pos[0] = 4
+    item_pos[1] = 4
+    for _ in range(100):
+        spawn_hazard()
+        assert [hazard_pos[0], hazard_pos[1]] != [2, 2]
+
+
+def test_hazard_spawn_not_on_item():
+    """Hazard should never spawn on the collectible's position."""
+    player_pos[0] = 0
+    player_pos[1] = 0
+    item_pos[0] = 4
+    item_pos[1] = 4
+    for _ in range(100):
+        spawn_hazard()
+        assert [hazard_pos[0], hazard_pos[1]] != [4, 4]
+
+
+def test_hazard_spawn_within_grid():
+    """Hazard should always be within the 5x5 grid."""
+    for _ in range(100):
+        spawn_hazard()
+        assert 0 <= hazard_pos[0] < 5
+        assert 0 <= hazard_pos[1] < 5
+
+
+def test_hazard_collision_ends_game():
+    """Stepping on the hazard should trigger the game over condition."""
+    hazard_pos[0] = 0
+    hazard_pos[1] = 1  # place hazard to the right of player
+    move_player("d")
+    assert player_pos == hazard_pos
+
+
+def test_no_game_over_away_from_hazard():
+    """Game should not end when player is not on the hazard."""
+    hazard_pos[0] = 4
+    hazard_pos[1] = 4  # hazard far away
+    move_player("d")
+    assert player_pos != hazard_pos
