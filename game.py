@@ -1,18 +1,35 @@
 import os
+import random
 
 # Game state
 player_pos = [0, 0]  # [row, col] starting at top-left
+item_pos = [0, 0]    # [row, col] collectible position
+score = 0
+WIN_SCORE = 10
+
+def spawn_item():
+    """Place the collectible at a random position that isn't the player's."""
+    while True:
+        row = random.randint(0, 4)
+        col = random.randint(0, 4)
+        if [row, col] != player_pos:
+            item_pos[0] = row
+            item_pos[1] = col
+            break
 
 def draw_grid():
-    """Draw a 5x5 grid with the player's position marked."""
+    """Draw a 5x5 grid with the player and collectible."""
     size = 5
-    print("\n+" + "---+" * size)
+    print(f"\n  Score: {score}/{WIN_SCORE}")
+    print("+" + "---+" * size)
 
     for row in range(size):
         line = "|"
         for col in range(size):
             if row == player_pos[0] and col == player_pos[1]:
-                line += " P |"  # Player's position
+                line += " P |"
+            elif row == item_pos[0] and col == item_pos[1]:
+                line += " * |"  # Collectible
             else:
                 line += "   |"
         print(line)
@@ -40,9 +57,18 @@ def move_player(direction):
 
 def main():
     """Main game loop."""
+    global score
+
+    spawn_item()  # Place the first collectible
+
     while True:
         os.system("clear")  # Clear the terminal
         draw_grid()
+
+        if score >= WIN_SCORE:
+            print("You win! Thanks for playing!")
+            break
+
         print("WASD to move | q to quit")
         command = input("> ")
 
@@ -52,6 +78,11 @@ def main():
 
         if command in "wasd":
             move_player(command)
+
+            # Check if player landed on the collectible
+            if player_pos == item_pos:
+                score += 1
+                spawn_item()
 
 if __name__ == "__main__":
     main()
