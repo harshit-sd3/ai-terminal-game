@@ -2,7 +2,7 @@ import io
 import sys
 
 import pytest
-from game import player_pos, item_pos, hazard_pos, score, draw_grid, move_player, spawn_item, spawn_hazard, reset_game, WIN_SCORE
+from game import player_pos, item_pos, hazard_pos, score, draw_grid, move_player, spawn_item, spawn_hazard, reset_game, show_intro, WIN_SCORE, PLAYER_EMOJI, ITEM_EMOJI, HAZARD_EMOJI, GAME_NAME, STORY_INTRO, WIN_MESSAGE, LOSE_MESSAGE
 import game
 
 
@@ -37,15 +37,15 @@ def test_grid_is_five_by_five():
 
 
 def test_grid_shows_player():
-    """Grid should display the player marker 'P'."""
+    """Grid should display the player emoji."""
     output = capture_grid()
-    assert "P" in output
+    assert PLAYER_EMOJI in output
 
 
 def test_grid_shows_collectible():
-    """Grid should display the collectible marker '*'."""
+    """Grid should display the collectible emoji."""
     output = capture_grid()
-    assert "*" in output
+    assert ITEM_EMOJI in output
 
 
 def test_grid_shows_score():
@@ -176,9 +176,9 @@ def test_no_win_below_score_10():
 
 
 def test_grid_shows_hazard():
-    """Grid should display the hazard marker 'X'."""
+    """Grid should display the hazard emoji."""
     output = capture_grid()
-    assert "X" in output
+    assert HAZARD_EMOJI in output
 
 
 def test_hazard_spawn_not_on_player():
@@ -279,3 +279,27 @@ def test_reset_after_scoring():
     reset_game()
     assert player_pos == [0, 0]
     assert game.score == 0
+
+
+# --- Theme tests ---
+
+
+def test_game_name():
+    """Game name should be 'Danger Dragon'."""
+    assert GAME_NAME == "Danger Dragon"
+
+
+def test_story_intro():
+    """Story intro should mention dragons and eggs."""
+    assert "dragons" in STORY_INTRO.lower()
+    assert "eggs" in STORY_INTRO.lower()
+
+
+def test_win_message():
+    """Win message should match the themed text."""
+    assert "Wohoo" in WIN_MESSAGE
+
+
+def test_lose_message():
+    """Lose message should match the themed text."""
+    assert "Oopsie" in LOSE_MESSAGE

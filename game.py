@@ -1,6 +1,15 @@
 import os
 import random
 
+# Theme
+GAME_NAME = "Danger Dragon"
+STORY_INTRO = "Navigate through the dangers of dragons to collect eggs."
+PLAYER_EMOJI = "🤠"
+ITEM_EMOJI = "🥚"
+HAZARD_EMOJI = "🌋"
+WIN_MESSAGE = "Wohoo!! You win!!"
+LOSE_MESSAGE = "Oopsie! Dargon got you! You lose"
+
 # Game state
 player_pos = [0, 0]  # [row, col] starting at top-left
 item_pos = [0, 0]    # [row, col] collectible position
@@ -38,11 +47,11 @@ def draw_grid():
         line = "|"
         for col in range(size):
             if row == player_pos[0] and col == player_pos[1]:
-                line += " P |"
+                line += f" {PLAYER_EMOJI} |"
             elif row == item_pos[0] and col == item_pos[1]:
-                line += " * |"
+                line += f" {ITEM_EMOJI} |"
             elif row == hazard_pos[0] and col == hazard_pos[1]:
-                line += " X |"
+                line += f" {HAZARD_EMOJI} |"
             else:
                 line += "   |"
         print(line)
@@ -77,9 +86,21 @@ def reset_game():
     spawn_item()
     spawn_hazard()
 
+def show_intro():
+    """Display the game name and story intro."""
+    os.system("clear")
+    print()
+    print(f"  === {GAME_NAME} ===")
+    print()
+    print(f"  {STORY_INTRO}")
+    print()
+    input("  Press Enter to start... ")
+
 def main():
     """Main game loop with play again support."""
     global score
+
+    show_intro()
 
     while True:
         reset_game()
@@ -90,14 +111,14 @@ def main():
             draw_grid()
 
             if score >= WIN_SCORE:
-                print("You win! Thanks for playing!")
+                print(f"  {WIN_MESSAGE}")
                 break
 
-            print("WASD to move | q to quit")
-            command = input("> ")
+            print("  WASD to move | q to quit")
+            command = input("  > ")
 
             if command == "q":
-                print("Thanks for playing!")
+                print("  Thanks for playing!")
                 return
 
             if command in "wasd":
@@ -108,16 +129,16 @@ def main():
                     spawn_item()
 
                 if player_pos == hazard_pos:
-                    print("Game Over!")
+                    print(f"  {LOSE_MESSAGE}")
                     break
 
         # Play again prompt
         while True:
-            choice = input("\nPlay again? (y/n) ").lower()
+            choice = input("\n  Play again? (y/n) ").lower()
             if choice == "y":
                 break
             elif choice == "n":
-                print("Goodbye!")
+                print("  Goodbye!")
                 return
 
 if __name__ == "__main__":
